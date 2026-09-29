@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1f3a" />
+  <title>SHUTOOL — MVP</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <strong>SHUTOOL </strong>
+        <span>University shuttle payments</span>
+      </div>
+    </div>
+    <div class="demo-pill">MVP · SIMULATED MONEY</div>
+  </header>
+
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">2026</span>
+        <h1>University shuttle payments, without the lost change.</h1>
+        <p>Record cash change owed, get driver confirmation, and carry the confirmed credit to your next approved shuttle.</p>
+      </div>
+      <button class="secondary-btn" onclick="resetDemo()">Reset demo</button>
+    </section>
+
+    <nav class="role-tabs" aria-label="Demo roles">
+      <button class="role-tab active" data-role="student" onclick="switchRole('student')">Student</button>
+      <button class="role-tab" data-role="driver" onclick="switchRole('driver')">Driver</button>
+      <button class="role-tab" data-role="admin" onclick="switchRole('admin')">Admin</button>
+    </nav>
+
+    <!-- STUDENT -->
+    <section id="studentView" class="role-view active">
+      <div class="dashboard-head">
+        <div>
+          <span class="eyebrow">Student dashboard</span>
+          <h2>Good afternoon, Joseph</h2>
+        </div>
+        <div class="wallet-card">
+          <span>Simulated wallet</span>
+          <strong id="studentBalance">₦2,000</strong>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <button class="action-card primary-action" onclick="openModal('scanModal')">
+          <span class="action-icon">⌁</span>
+          <div><strong>Scan QR</strong><small>Identify a driver</small></div>
+        </button>
+        <button class="action-card" onclick="openModal('cashModal')">
+          <span class="action-icon">₦</span>
+          <div><strong>Record Cash</strong><small>Claim change owed</small></div>
+        </button>
+        <button class="action-card" onclick="showToast('Your confirmed credit is already visible below.')">
+          <span class="action-icon">✓</span>
+          <div><strong>My Credits</strong><small id="creditActionText">₦300 confirmed</small></div>
+        </button>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title">
+            <div><span class="eyebrow">Change credit</span><h3>My credits</h3></div>
+            <span id="creditStatusBadge" class="badge confirmed">Confirmed</span>
+          </div>
+          <div class="credit-big">
+            <strong id="creditBalance">₦300</strong>
+            <span>available confirmed credit</span>
+          </div>
+          <div class="credit-flow">
+            <div><span class="dot pending"></span><b>Claimed</b><small>Cash payment recorded</small></div>
+            <div class="flow-line"></div>
+            <div><span class="dot confirmed-dot"></span><b>Confirmed</b><small>Driver accepted claim</small></div>
+            <div class="flow-line"></div>
+            <div><span class="dot settled"></span><b>Usable</b><small>Apply to another fare</small></div>
+          </div>
+          <button class="primary-btn full" onclick="openModal('useCreditModal')">Use credit on next ride</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <div><span class="eyebrow">Activity</span><h3>Recent transactions</h3></div>
+          </div>
+          <div id="studentTransactions" class="transaction-list"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <div><span class="eyebrow">How it works</span><h3>The Shuttler loop</h3></div>
+        </div>
+        <div class="steps">
+          <div class="step"><b>01</b><strong>Pay or record cash</strong><span>Digital payment or cash amount given to driver.</span></div>
+          <div class="step"><b>02</b><strong>Driver confirms</strong><span>A student cannot create a debt alone.</span></div>
+          <div class="step"><b>03</b><strong>Credit becomes real</strong><span>Confirmed credit is usable with approved drivers.</span></div>
+          <div class="step"><b>04</b><strong>Use it later</strong><span>Apply credit to a future shuttle fare.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DRIVER -->
+    <section id="driverView" class="role-view">
+      <div class="dashboard-head">
+        <div>
+          <span class="eyebrow">Driver dashboard</span>
+          <h2>Welcome, Adewale</h2>
+          <p class="muted">Driver ID: SH-DRV-001 · <span class="online-dot"></span> Approved</p>
+        </div>
+        <div class="wallet-card driver-wallet">
+          <span>Simulated earnings</span>
+          <strong id="driverBalance">₦4,850</strong>
+        </div>
+      </div>
+
+      <div class="driver-qr-row">
+        <div class="panel qr-panel">
+          <div>
+            <span class="eyebrow">Your driver QR</span>
+            <h3>Let students identify you</h3>
+            <p class="muted">Display this QR inside the shuttle. It identifies this approved driver in the demo.</p>
+          </div>
+          <div id="driverQr" class="qr-box"></div>
+          <code>SHUTTLER-DRIVER-SH-DRV-001</code>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">
+            <div><span class="eyebrow">Action required</span><h3>Change claims</h3></div>
+            <span id="claimCountBadge" class="badge pending">1 pending</span>
+          </div>
+          <div id="driverClaims"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div><span class="eyebrow">Driver activity</span><h3>Recent payments</h3></div></div>
+        <div id="driverTransactions" class="transaction-list"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="adminView" class="role-view">
+      <div class="dashboard-head">
+        <div>
+          <span class="eyebrow">Transport office</span>
+          <h2>Admin control centre</h2>
+          <p class="muted">Manage approved drivers, official fare and system activity.</p>
+        </div>
+        <div class="fare-card">
+          <span>Official shuttle fare</span>
+          <strong id="fareDisplay">₦200</strong>
+          <button onclick="changeFare()">Edit fare</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat"><span>Approved drivers</span><strong id="approvedDrivers">3</strong></div>
+        <div class="stat"><span>Pending approvals</span><strong id="pendingDrivers">1</strong></div>
+        <div class="stat"><span>Transactions</span><strong id="transactionCount">0</strong></div>
+        <div class="stat"><span>Open claims</span><strong id="openClaims">1</strong></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title"><div><span class="eyebrow">Driver management</span><h3>Registration queue</h3></div></div>
+          <div id="driverQueue"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title"><div><span class="eyebrow">System ledger</span><h3>Latest activity</h3></div></div>
+          <div id="adminLedger" class="transaction-list"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SCAN MODAL -->
+  <div id="scanModal" class="modal">
+    <div class="modal-card wide">
+      <button class="close" onclick="closeModal('scanModal')">×</button>
+      <span class="eyebrow">Identify driver</span>
+      <h2>Scan a driver QR</h2>
+      <p class="muted">Camera access works when the app is opened on localhost or HTTPS.</p>
+      <div class="scanner">
+        <video id="scannerVideo" playsinline></video>
+        <canvas id="scannerCanvas" hidden></canvas>
+        <div class="scan-frame"></div>
+      </div>
+      <div class="scan-actions">
+        <button class="primary-btn" onclick="startScanner()">Start camera</button>
+        <button class="secondary-btn" onclick="stopScanner()">Stop</button>
+        <button class="secondary-btn" onclick="simulateScan()">Use demo driver</button>
+      </div>
+      <p id="scanResult" class="scan-result"></p>
+    </div>
+  </div>
+
+  <!-- CASH MODAL -->
+  <div id="cashModal" class="modal">
+    <div class="modal-card">
+      <button class="close" onclick="closeModal('cashModal')">×</button>
+      <span class="eyebrow">Cash + change</span>
+      <h2>Record cash payment</h2>
+      <p class="muted">The fare is automatically taken from the university's official fare.</p>
+      <label>Driver
+        <select id="cashDriver">
+          <option value="Adewale">Adewale — SH-DRV-001</option>
+          <option value="Chinedu">Chinedu — SH-DRV-002</option>
+          <option value="Fatima">Fatima — SH-DRV-003</option>
+        </select>
+      </label>
+      <label>Cash given (₦)
+        <input id="cashGiven" type="number" min="0" value="500" oninput="calculateChange()" />
+      </label>
+      <div class="calculation">
+        <span>Official fare</span><strong id="cashFare">₦200</strong>
+        <span>Change owed</span><strong id="changeOwed">₦300</strong>
+      </div>
+      <button class="primary-btn full" onclick="submitChangeClaim()">Request Change Credit</button>
+    </div>
+  </div>
+
+  <!-- USE CREDIT MODAL -->
+  <div id="useCreditModal" class="modal">
+    <div class="modal-card">
+      <button class="close" onclick="closeModal('useCreditModal')">×</button>
+      <span class="eyebrow">Future ride</span>
+      <h2>Use confirmed credit</h2>
+      <p class="muted">Your confirmed credit can be used with any approved driver.</p>
+      <label>Choose approved driver
+        <select id="creditDriver">
+          <option>Adewale — SH-DRV-001</option>
+          <option>Chinedu — SH-DRV-002</option>
+          <option>Fatima — SH-DRV-003</option>
+        </select>
+      </label>
+      <div class="calculation">
+        <span>Fare</span><strong id="creditFare">₦200</strong>
+        <span>Credit before ride</span><strong id="creditBefore">₦300</strong>
+        <span>Remaining credit</span><strong id="creditAfter">₦100</strong>
+      </div>
+      <button class="primary-btn full" onclick="useCredit()">Apply Credit & Pay Fare</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div id="successModal" class="modal">
+    <div class="modal-card success-card">
+      <div class="success-icon">✓</div>
+      <span class="eyebrow">Transaction complete</span>
+      <h2 id="successTitle">Payment successful</h2>
+      <p id="successText" class="muted"></p>
+      <div id="receipt" class="receipt"></div>
+      <button class="primary-btn full" onclick="closeModal('successModal')">Done</button>
+    </div>
+  </div>
+
+  <footer>
+    <span>Shuttler MVP</span>
+    <span>Built for InnovateX 2026 · Simulated transactions only</span>
+  </footer>
+
+  <!-- QR libraries. No build tools required. -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
